@@ -41,7 +41,12 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Served through the /api/media route (see routes/api.php) rather
+            // than a direct /storage URL — some shared hosts (Passenger/WAF
+            // rules on cPanel) block direct static access to storage paths
+            // regardless of symlink vs. real directory, so files are streamed
+            // through Laravel's already-working /api/* path instead.
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/api/media',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -74,7 +79,8 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        // Intentionally empty — the 'public' disk now writes straight into
+        // public/storage as a real directory, so no symlink is needed.
     ],
 
 ];
